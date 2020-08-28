@@ -141,22 +141,22 @@ PrefabInstance:
     - target: {fileID: 4409912103926594545, guid: 35b1a63a55205f8409762fc77b060546,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 72.40625
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4409912103926594545, guid: 35b1a63a55205f8409762fc77b060546,
         type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.245
       objectReference: {fileID: 0}
     - target: {fileID: 4409912103926594545, guid: 35b1a63a55205f8409762fc77b060546,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.245
       objectReference: {fileID: 0}
     - target: {fileID: 4409912103926594545, guid: 35b1a63a55205f8409762fc77b060546,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4409912103926594545, guid: 35b1a63a55205f8409762fc77b060546,
         type: 3}
@@ -1586,6 +1586,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1586191507}
   - component: {fileID: 1586191506}
+  - component: {fileID: 1586191508}
   - component: {fileID: 1586191505}
   m_Layer: 0
   m_Name: GameManager
@@ -1606,11 +1607,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b46065eed2283e40a944956129b4274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 5
-  minSpread: {x: 0.75, y: 0, z: 1.5}
-  maxSpread: {x: 1.4, y: 2, z: 1.4}
-  asteroidPrototype: {fileID: 529668870196306403, guid: 40460ffde0ada954087202f85404c7ee,
-    type: 3}
 --- !u!114 &1586191506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1629,7 +1625,20 @@ MonoBehaviour:
   OnLevelLosing:
     m_PersistentCalls:
       m_Calls: []
-  _options: {fileID: 11400000, guid: c4d25a2c4bf51d74280f9e8e58badfbd, type: 2}
+  OnLevelProgressChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1586191508}
+        m_MethodName: GameProgressChanged
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &1586191507
 Transform:
   m_ObjectHideFlags: 0
@@ -1644,6 +1653,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1586191508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1586191504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caef5f3aca76a71439af5d87257e41ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 5
+  minSpread: {x: 0.75, y: 0, z: 0.5}
+  maxSpread: {x: 1.5, y: 1, z: 1.5}
+  asteroidPrototype: {fileID: 529668870196306403, guid: 40460ffde0ada954087202f85404c7ee,
+    type: 3}
 --- !u!1 &1630654710
 GameObject:
   m_ObjectHideFlags: 0

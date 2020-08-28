@@ -1,5 +1,5 @@
-﻿using GameServices.Extensions;
-using GameServices.UI;
+﻿using GameServices.Events;
+using GameServices.Extensions;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public UnityEvent OnLevelCompleted;
     public UnityEvent OnLevelLosing;
+    public UnityFloatEvent OnLevelProgressChanged;
 
     public int HealthCount
     {
@@ -32,15 +33,14 @@ public class GameManager : MonoBehaviour
             {
                 _gameModel.Progress = value;
                 _gameHUDView.UpdateView(_gameModel);
+                OnLevelProgressChanged.Invoke(value);
                 OnProgressChanged();
             }
         }
     }
 
-    public LevelOptions _options;
     private ShipUnit _shipUnit;
     private UIManager _UIManager;
-    private ObjectsController _objectsController;
 
     private int defaultHealthCount = 3;
     private Vector3 defaultShipPosition = Vector3.zero;
@@ -56,7 +56,6 @@ public class GameManager : MonoBehaviour
         _gameModel = new GameModel(defaultHealthCount, 0);
         _shipUnit = FindObjectOfType<ShipUnit>();
         _UIManager = FindObjectOfType<UIManager>();
-        _objectsController = FindObjectOfType<ObjectsController>();
 
         //TODO:Add checking of components
         //...
@@ -75,7 +74,7 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Progress = Vector3.Distance(defaultShipPosition, _shipUnit.transform.position) / _options.levelLength;
+        Progress = Vector3.Distance(defaultShipPosition, _shipUnit.transform.position) / LevelManager.Instance.currentLevel.options.levelLength;
     }
 
     private void Play()
@@ -105,15 +104,6 @@ public class GameManager : MonoBehaviour
 
     private void OnProgressChanged()
     {
-        if (Progress >= 0.1F && !_objectsController.IsSpawninig)
-        {
-            _objectsController.BeginAsteroidSpawning(_shipUnit.gameObject, _options);
-        } 
-        else if (Progress >= 0.9F && _objectsController.IsSpawninig)
-        {
-            _objectsController.EndAsteroidSpawning();
-        }
-
         if (Progress >= 1.0F)
         {
             LevelCompleted();
@@ -131,7 +121,6 @@ public class GameManager : MonoBehaviour
     private void LevelLosing()
     {
         Pause();
-        _objectsController.EndAsteroidSpawning();
         _UIManager.GetUIElement<LevelLosingUIWindow>().BeginShow();
         OnLevelLosing.Invoke();
     }
@@ -139,7 +128,6 @@ public class GameManager : MonoBehaviour
     private void LevelCompleted()
     {
         Pause();
-        _objectsController.EndAsteroidSpawning();
         _UIManager.GetUIElement<LevelCompleteUIWindow>().BeginShow();
         OnLevelCompleted.Invoke();
     }

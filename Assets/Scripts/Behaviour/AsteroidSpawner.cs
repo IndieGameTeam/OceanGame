@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
+using UnityEngine;
 
-public class ObjectsController : MonoBehaviour
+[RequireComponent(typeof(ObjectPool))]
+public class AsteroidSpawner : MonoBehaviour
 {
-    public bool IsSpawninig { get; private set; }
-    
     public float height = 5F;
 
     public Vector3 minSpread = Vector3.zero;
@@ -13,32 +11,46 @@ public class ObjectsController : MonoBehaviour
 
     public Asteroid asteroidPrototype;
 
-    private List<GameObject> cachedAsteroids = new List<GameObject>();
-    private Coroutine spawnCoroutine;
+    private bool spawning = false;
+    private Coroutine spawningCoroutine;
+    private ObjectPool objectsController;
+    private ShipUnit target;
 
-    public void BeginAsteroidSpawning(GameObject target, LevelOptions options)
+
+    public void GameProgressChanged(float progress)
     {
-        IsSpawninig = true;
-        spawnCoroutine = StartCoroutine(ObjectSpawnRoutine(target, options));
+        if (progress > 0.1F && !spawning)
+        {
+            spawningCoroutine = StartCoroutine(ObjectSpawnRoutine());
+            spawning = true;
+        }
+
+        if(progress > 0.9F && spawning) 
+        {
+            StopCoroutine(spawningCoroutine);
+            spawning = false;
+        }
     }
 
-    public void EndAsteroidSpawning()
+    private void Start()
     {
-        IsSpawninig = false;
-        StopCoroutine(spawnCoroutine);
+        target = FindObjectOfType<ShipUnit>();
+        objectsController = GetComponent<ObjectPool>();
     }
 
-    private IEnumerator ObjectSpawnRoutine(GameObject target, LevelOptions options)
+    private  IEnumerator ObjectSpawnRoutine()
     {
         while (true)
         {
+            LevelOptions options = LevelManager.Instance.currentLevel.options;
+
             float timeout = options.asteroidsSpawnTimeout + Random.value * options.asteroidsSpawnTimeoutSpread;
 
             yield return new WaitForSeconds(timeout);
 
             for (int i = 0; i < Random.Range(1, options.maximumAsteroids + 1); i++)
             {
-                CreateAsteroid(target);
+                CreateAsteroid(target.gameObject);
             }
         }
     }
@@ -65,16 +77,12 @@ public class ObjectsController : MonoBehaviour
         point += v;
         point.y += Mathf.Lerp(minSpread.y, maxSpread.y, Random.value) + height;
 
-        GameObject asteroid = cachedAsteroids.Find(x => x.activeSelf == false);
+        GameObject asteroid = objectsController.GetObject(ObjectType.Asteroid);
 
         if (asteroid == null)
         {
             asteroid = Instantiate(asteroidPrototype).gameObject;
-            cachedAsteroids.Add(asteroid);
-        }
-        else
-        {
-            asteroid.gameObject.SetActive(true);
+            objectsController.AddObject(ObjectType.Asteroid, asteroid);
         }
 
         asteroid.transform.position = point;
