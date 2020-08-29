@@ -1,17 +1,9 @@
-﻿public class BonusHealthUp : Bonus, IPickup
+﻿public class BonusHealthUp : PickupObject
 {
     public int healthUp = 1;
 
-    public void Pickup()
+    protected override void OnPickup(GameManager manager)
     {
-        OnPickUp();
-        Destroy(gameObject);
-    }
-
-    public override void OnPickUp()
-    {
-        base.OnPickUp();
-
-        FindObjectOfType<GameManager>().HealthCount += healthUp;
+        manager.HealthCount += healthUp;
     }
 }

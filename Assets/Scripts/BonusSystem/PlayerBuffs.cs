@@ -51,9 +51,4 @@ public class PlayerBuffs : MonoBehaviour
                 RemoveBuff(buffs[i]);
         }
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        other.GetComponent<IPickup>()?.Pickup();
-    }
 }

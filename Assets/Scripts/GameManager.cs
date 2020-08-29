@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
         defaultShipRotation = _shipUnit.transform.rotation.eulerAngles;
 
         _shipUnit.OnDamaged += () => HealthCount--;
+        _shipUnit.OnPickup += (pickup) => pickup.Pickup(this);
 
         _UIManager.GetUIElement<LevelLosingUIWindow>().OnRestart += () => { Restart(); Play(); };
         _UIManager.GetUIElement<LevelCompleteUIWindow>().OnRestart += () => { Restart(); Play(); };

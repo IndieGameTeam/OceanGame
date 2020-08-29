@@ -1,22 +1,23 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
-public abstract class Bonus : MonoBehaviour
+public abstract class PickupObject : MonoBehaviour
 {
-    public new string name;
-
-    public Sprite bonusIcon;
     public AudioClip soundPickup;
 
     private AudioSource audioSource;
 
-    public virtual void OnPickUp()
+    public void Pickup(GameManager manager)
     {
         if (soundPickup != null)
+        {
             audioSource.PlayOneShot(soundPickup);
+        }
 
-        Destroy(gameObject);
+        OnPickup(manager);
     }
+
+    protected virtual void OnPickup(GameManager manager) { }
 
     private void Start()
     {

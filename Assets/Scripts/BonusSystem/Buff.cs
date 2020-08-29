@@ -20,29 +20,4 @@ public class Buff
         this.onStart = onStart;
         this.onEnd = onEnd;
     }
-
-    //public override bool Equals(object obj)
-    //{
-    //    return base.Equals(obj);
-    //}
-
-    //public override int GetHashCode()
-    //{
-    //    return base.GetHashCode();
-    //}
-
-    //public override string ToString()
-    //{
-    //    return base.ToString();
-    //}
-
-    //public static bool operator ==(Buff a, Buff b)
-    //{
-    //    return a.name == b.name;
-    //}
-
-    //public static bool operator !=(Buff a, Buff b)
-    //{
-    //    return a.name != b.name ;
-    //}
 }
