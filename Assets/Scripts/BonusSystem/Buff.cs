@@ -2,7 +2,6 @@
 
 public class Buff
 {
-    public string name;
     public bool isSingle;
     public float timeBonus;
     public float timeLeft;
@@ -10,9 +9,8 @@ public class Buff
     public Action onStart;
     public Action onEnd;
 
-    public Buff(string name, bool isSingle, float timeBonus, Action onStart, Action onEnd)
+    public Buff(bool isSingle, float timeBonus, Action onStart, Action onEnd)
     {
-        this.name = name;
         this.isSingle = isSingle;
         this.timeBonus = timeBonus;
         timeLeft = timeBonus;

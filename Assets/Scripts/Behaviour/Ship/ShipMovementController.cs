@@ -63,7 +63,7 @@ public class ShipMovementController : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(forward * (shipPitching.Evaluate(Time.time) + new Vector3(0, y, z)));
 
         transform.rotation = rotation;
-        _rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, transform.forward * speed, damping * Time.fixedTime);
+        _rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, transform.forward * speed * (2 - Time.timeScale), damping * Time.fixedTime);
     }
 
     private float ScreenClamp(float angle)
