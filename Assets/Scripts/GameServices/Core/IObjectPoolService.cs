@@ -1,13 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum GettingOptions
-{
-    OnlyHided,
-    OnlyShowed,
-    All
-}
-
 public interface IObjectPoolService
 {
     void AddObject(ObjectType objectType, GameObject gameObject);
