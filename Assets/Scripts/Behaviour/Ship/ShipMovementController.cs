@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using GameServices.Math;
+using System;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class ShipMovementController : MonoBehaviour
+public class ShipMovementController : MonoBehaviour, IGameServiceConsumer
 {
     [System.Serializable]
     public class Vector3AnimationCurve
@@ -38,6 +39,16 @@ public class ShipMovementController : MonoBehaviour
 
     private Rigidbody _rigidbody;
 
+    public void Setup(IGameServiceProvider provider)
+    {
+        provider.GameEventService.OnLevelLosing.AddListener(OnLevelLosing);
+    }
+
+    private void OnLevelLosing()
+    {
+        y = 0;
+        z = 0;
+    }
 
     private void Start()
     {
@@ -88,4 +99,5 @@ public class ShipMovementController : MonoBehaviour
 
         return Mathf.Clamp(angle, minAngle, maxAngle);
     }
+
 }

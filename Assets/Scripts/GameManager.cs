@@ -1,15 +1,12 @@
 ﻿using GameServices.Events;
 using GameServices.Extensions;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IGameServiceProvider
 {
-    public UnityEvent OnLevelCompleted;
-    public UnityEvent OnLevelLosing;
-    public UnityFloatEvent OnLevelProgressChanged;
-
     public int HealthCount
     {
         get => _gameModel.HealthCount;
@@ -33,11 +30,18 @@ public class GameManager : MonoBehaviour
             {
                 _gameModel.Progress = value;
                 _gameHUDView.UpdateView(_gameModel);
-                OnLevelProgressChanged.Invoke(value);
+                _gameEventService.OnLevelProgressChanged.Invoke(value);
                 OnProgressChanged();
             }
         }
     }
+
+    public IObjectPoolService ObjectPoolService { get => _poolService; }
+
+    public IGameEventService GameEventService { get => _gameEventService; }
+
+    [SerializeField]
+    private GameEventService _gameEventService = null;
 
     private ShipUnit _shipUnit;
     private UIManager _UIManager;
@@ -49,16 +53,25 @@ public class GameManager : MonoBehaviour
     private GameHud _gameHUDView;
     private GameModel _gameModel;
 
+    private IObjectPoolService _poolService = null;
+
     private const float minimalProgressDifference = 0.0025F;
 
     private void Start()
     {
         _gameModel = new GameModel(defaultHealthCount, 0);
+        _poolService = new ObjectPool();
+
         _shipUnit = FindObjectOfType<ShipUnit>();
         _UIManager = FindObjectOfType<UIManager>();
 
-        //TODO:Add checking of components
+        //TODO: Add checking of components.
         //...
+
+        foreach (IGameServiceConsumer serviceConsumer in FindObjectOnScene<IGameServiceConsumer>())
+        {
+            serviceConsumer.Setup(this);
+        }
 
         defaultShipPosition = _shipUnit.transform.position;
         defaultShipRotation = _shipUnit.transform.rotation.eulerAngles;
@@ -122,13 +135,28 @@ public class GameManager : MonoBehaviour
     {
         Pause();
         _UIManager.GetUIElement<LevelLosingUIWindow>().BeginShow();
-        OnLevelLosing.Invoke();
+        _gameEventService.OnLevelLosing.Invoke();
     }
 
     private void LevelCompleted()
     {
         Pause();
         _UIManager.GetUIElement<LevelCompleteUIWindow>().BeginShow();
-        OnLevelCompleted.Invoke();
+        _gameEventService.OnLevelCompleted.Invoke();
+    }
+
+    private IEnumerable<T> FindObjectOnScene<T>()
+    {
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        
+        foreach (GameObject rootGameObject in scene.GetRootGameObjects())
+        {
+            var tempObjects = rootGameObject.GetComponentInChildren<T>();
+
+            if(tempObjects != null)
+            {
+                yield return tempObjects;
+            }
+        }
     }
 }

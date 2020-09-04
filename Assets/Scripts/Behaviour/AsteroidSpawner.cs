@@ -1,44 +1,61 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(ObjectPool))]
-public class AsteroidSpawner : MonoBehaviour
+public class AsteroidSpawner : MonoBehaviour, IGameServiceConsumer
 {
     public float height = 5F;
 
     public Vector3 minSpread = Vector3.zero;
     public Vector3 maxSpread = Vector3.one;
 
-    public Asteroid asteroidPrototype;
+    public Asteroid asteroidPrototype;  
 
-    private bool spawning = false;
-    private Coroutine spawningCoroutine;
-    private ObjectPool objectsController;
-    private ShipUnit target;
+    private bool _spawning = false;
+    private Coroutine _spawnCoroutine;
+    private IObjectPoolService _poolService;
+    private ShipUnit _target;
 
 
-    public void GameProgressChanged(float progress)
+    public void Setup(IGameServiceProvider provider)
     {
-        if (progress > 0.1F && !spawning)
+        _target = FindObjectOfType<ShipUnit>();
+        _poolService = provider.ObjectPoolService;
+
+        provider.GameEventService.OnLevelLosing.AddListener(OnLevelLosing);
+        provider.GameEventService.OnLevelProgressChanged.AddListener(GameProgressChanged);
+    }
+
+    private void OnLevelLosing()
+    {
+        EndSpawning();
+    }
+
+    private void GameProgressChanged(float progress)
+    {
+        if (progress > 0.1F && !_spawning)
         {
-            spawningCoroutine = StartCoroutine(ObjectSpawnRoutine());
-            spawning = true;
+            BeginSpawning();
         }
 
-        if(progress > 0.9F && spawning) 
+        if (progress > 0.9F && _spawning)
         {
-            StopCoroutine(spawningCoroutine);
-            spawning = false;
+            EndSpawning();
         }
     }
 
-    private void Start()
+    private void BeginSpawning()
     {
-        target = FindObjectOfType<ShipUnit>();
-        objectsController = GetComponent<ObjectPool>();
+        _spawnCoroutine = StartCoroutine(ObjectSpawnRoutine());
+        _spawning = true;
     }
 
-    private  IEnumerator ObjectSpawnRoutine()
+    private void EndSpawning()
+    {
+        StopCoroutine(_spawnCoroutine);
+        _spawning = false;
+    }
+
+    private IEnumerator ObjectSpawnRoutine()
     {
         while (true)
         {
@@ -50,7 +67,7 @@ public class AsteroidSpawner : MonoBehaviour
 
             for (int i = 0; i < Random.Range(1, options.maximumAsteroids + 1); i++)
             {
-                CreateAsteroid(target.gameObject);
+                CreateAsteroid(_target.gameObject);
             }
         }
     }
@@ -77,12 +94,12 @@ public class AsteroidSpawner : MonoBehaviour
         point += v;
         point.y += Mathf.Lerp(minSpread.y, maxSpread.y, Random.value) + height;
 
-        GameObject asteroid = objectsController.GetObject(ObjectType.Asteroid);
+        GameObject asteroid = _poolService.GetObject(ObjectType.Asteroid);
 
         if (asteroid == null)
         {
             asteroid = Instantiate(asteroidPrototype).gameObject;
-            objectsController.AddObject(ObjectType.Asteroid, asteroid);
+            _poolService.AddObject(ObjectType.Asteroid, asteroid);
         }
 
         asteroid.transform.position = point;
